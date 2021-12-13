@@ -51,6 +51,7 @@ module EX(
     wire [3:0] sel_alu_src2;
     wire data_ram_en;
     wire [3:0] data_ram_wen;
+    wire [3:0] data_ram_read;
     wire rf_we;
     wire [4:0] rf_waddr;
     wire sel_rf_res;
@@ -83,14 +84,10 @@ module EX(
         lo_hi_r,                        //read信号
         lo_hi_w,                        //write信号
         lo_o,                           //lo值
-        hi_o                            //hi值
+        hi_o,                            //hi值
+        data_ram_read
     } = id_to_ex_bus_r;
-    
-
-    
-
-    
-    
+  
 //    assign {
 //        lo_hi_r,                        //read信号
 //        lo_hi_w,                        //write信号
@@ -132,9 +129,22 @@ module EX(
 
 
     assign data_sram_en = data_ram_en ;
-    assign data_sram_wen = data_ram_wen;
+    assign data_sram_wen = (data_ram_read==4'b0101 && ex_result[1:0] == 2'b00 )? 4'b0001: 
+                            (data_ram_read==4'b0101 && ex_result[1:0] == 2'b01 )? 4'b0010:
+                            (data_ram_read==4'b0101 && ex_result[1:0] == 2'b10 )? 4'b0100:
+                            (data_ram_read==4'b0101 && ex_result[1:0] == 2'b11 )? 4'b1000:
+                            (data_ram_read==4'b0111 && ex_result[1:0] == 2'b00 )? 4'b0011:
+                            (data_ram_read==4'b0111 && ex_result[1:0] == 2'b10 )? 4'b1100:
+                            data_ram_wen;
     assign data_sram_addr = ex_result ;
-    assign data_sram_wdata = rf_rdata2;
+    assign data_sram_wdata = data_sram_wen==4'b1111 ? rf_rdata2 : 
+                              data_sram_wen==4'b0001 ? {24'b0,rf_rdata2[7:0]} :
+                              data_sram_wen==4'b0010 ? {16'b0,rf_rdata2[7:0],8'b0} :
+                              data_sram_wen==4'b0100 ? {8'b0,rf_rdata2[7:0],16'b0} :
+                              data_sram_wen==4'b1000 ? {rf_rdata2[7:0],24'b0} :
+                              data_sram_wen==4'b0011 ? {16'b0,rf_rdata2[15:0]} :
+                              data_sram_wen==4'b1100 ? {rf_rdata2[15:0],16'b0} :
+                              32'b0;
     
     assign ex_to_mem_bus = {
         ex_pc,          // 75:44
@@ -143,7 +153,8 @@ module EX(
         sel_rf_res,     // 38
         rf_we,          // 37
         rf_waddr,       // 36:32
-        ex_result       // 31:0
+        ex_result,       // 31:0
+        data_ram_read
     };
    
     

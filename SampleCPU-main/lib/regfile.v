@@ -128,13 +128,10 @@ module regfile(
     
     assign hi_o = hi_ex_we ? hi_ex:
                    hi_mem_we ? hi_mem:
-                   hi_wb_we ? hi_wb:
-                     (r_hi_we) ? hi :
-                     32'b0;
+                   hi_wb_we ? hi_wb: 
+                   hi;
     assign lo_o = lo_ex_we ? lo_ex:
                    lo_mem_we ? lo_mem:
-                   lo_wb_we ? lo_wb:
-                     (r_lo_we) ? lo : 
-                     32'b0;
+                   lo_wb_we ? lo_wb:lo;
      
 endmodule

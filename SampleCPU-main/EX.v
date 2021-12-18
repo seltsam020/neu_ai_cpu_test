@@ -22,7 +22,7 @@ module EX(
     output wire stallreq_for_ex,
     output wire [65:0]ex_to_mem1,
     output wire [65:0]ex_to_id_2,
-    output wire div_ready_ex_to_id
+    output wire ready_ex_to_id
 );
 
     reg [`ID_TO_EX_WD-1:0] id_to_ex_bus_r;
@@ -174,21 +174,41 @@ module EX(
     assign w_lo_we1 = mult | multu ;
     
     // MUL part
-    wire [63:0] mul_result;
-    wire mul_signed; // �з��ų˷����?
-    wire [31:0] mul_1;
-    wire [31:0] mul_2;
-    assign mul_1 = w_hi_we1 ? alu_src1 : 32'b0;
-    assign mul_2 = w_hi_we1 ? alu_src2 : 32'b0;
-    assign mul_signed = mult;
+//    wire [63:0] mul_result;
+//    wire mul_signed; // �з��ų˷����?
+//    wire [31:0] mul_1;
+//    wire [31:0] mul_2;
+//    assign mul_1 = w_hi_we1 ? alu_src1 : 32'b0;
+//    assign mul_2 = w_hi_we1 ? alu_src2 : 32'b0;
+//    assign mul_signed = mult;
 
-    mul u_mul(
+//    mul u_mul(
+//    	.clk        (clk            ),
+//        .resetn     (~rst           ),
+//        .mul_signed (mul_signed     ),
+//        .ina        (  mul_1    ), // �˷�Դ������1
+//        .inb        (  mul_2    ), // �˷�Դ������2
+//        .result     (mul_result     ) // �˷����? 64bit
+//    );
+    wire [63:0] mul_result;
+    wire mul_ready_i;
+//    wire [31:0] mul_1;
+//    wire [31:0] mul_2;
+    wire mul_begin;
+//    assign mul_1 = w_hi_we1 ? alu_src1 : 32'b0;
+//    assign mul_2 = w_hi_we1 ? alu_src2 : 32'b0;
+    wire mul_signed;
+    assign mul_signed = mult;
+    assign mul_begin = mult | multu ;
+
+    mul_plus u_mul_plus(
     	.clk        (clk            ),
-        .resetn     (~rst           ),
-        .mul_signed (mul_signed     ),
-        .ina        (  mul_1    ), // �˷�Դ������1
-        .inb        (  mul_2    ), // �˷�Դ������2
-        .result     (mul_result     ) // �˷����? 64bit
+    	.start_i      (mul_begin),
+    	.mul_sign     (mul_signed),
+        .opdata1_i    (  rf_rdata1    ), // �˷�Դ������1
+        .opdata2_i    (  rf_rdata2    ), // �˷�Դ������2
+        .result_o     (mul_result     ), // �˷����? 64bit
+        .ready_o      (mul_ready_i      )
     );
 
     // DIV part
@@ -198,8 +218,8 @@ module EX(
     reg stallreq_for_div;
     wire w_hi_we2;
     wire w_lo_we2;
-    assign stallreq_for_ex = stallreq_for_div& div_ready_i==1'b0;
-    assign div_ready_ex_to_id = div_ready_i;
+    assign stallreq_for_ex = (stallreq_for_div & div_ready_i==1'b0) | (mul_begin & mul_ready_i==1'b0);
+    assign ready_ex_to_id = div_ready_i | mul_ready_i;
     
     assign inst_div = (inst[31:26] == 6'b00_0000) & (inst[15:6] == 10'b0000000000) & (inst[5:0] == 6'b01_1010);
     assign inst_divu= (inst[31:26] == 6'b00_0000) & (inst[15:6] == 10'b0000000000) & (inst[5:0] == 6'b01_1011);

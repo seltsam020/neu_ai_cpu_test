@@ -36,7 +36,7 @@ module ID(
     output wire [`BR_WD-1:0] br_bus,
     
     input wire [65:0] wb_to_id_wf,
-    input wire div_ready_ex_to_id
+    input wire ready_ex_to_id
 );
     reg [31:0] inst_stall;
     reg inst_stall_en;
@@ -72,7 +72,7 @@ module ID(
     always @ (posedge clk) begin
         inst_stall_en<=1'b0;
         inst_stall <=32'b0;
-        if(stall[1] == 1'b1 & div_ready_ex_to_id ==1'b0)begin
+        if(stall[1] == 1'b1 & ready_ex_to_id ==1'b0)begin
         inst_stall <= inst;
         inst_stall_en<=1'b1;
         end

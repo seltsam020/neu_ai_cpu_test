@@ -41,7 +41,7 @@ module mycpu_core(
     wire [65:0]mem_to_id_2;
     wire [65:0]wb_to_id_2;
     wire stallreq_for_ex;
-    wire div_ready_ex_to_id;
+    wire ready_ex_to_id;
 //    wire [31:0] inst_stall;
     IF u_IF(
     	.clk             (clk             ),
@@ -76,7 +76,7 @@ module mycpu_core(
         .ex_to_id_2      (ex_to_id_2),
         .mem_to_id_2     (mem_to_id_2),
         .wb_to_id_2      (wb_to_id_2),
-        .div_ready_ex_to_id (div_ready_ex_to_id)
+        .ready_ex_to_id (ready_ex_to_id)
     );
 
     EX u_EX(
@@ -95,7 +95,7 @@ module mycpu_core(
 //        .id_to_ex_2      (id_to_ex_2),
         .ex_to_id_2      (ex_to_id_2),
         .stallreq_for_ex(stallreq_for_ex),
-        .div_ready_ex_to_id (div_ready_ex_to_id)
+        .ready_ex_to_id (ready_ex_to_id)
     );
 
     MEM u_MEM(

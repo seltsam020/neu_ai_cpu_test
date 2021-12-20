@@ -87,6 +87,22 @@ module EX(
         hi_o,                            //hiÖµ
         data_ram_read
     } = id_to_ex_bus_r;
+    
+    
+    
+//    wire inst_lsa;
+//    assign inst_lsa  = (inst[31:26]==6'b01_1100)  & (inst[10:8]==3'b111) & (inst[5:0]==6'b11_0111);
+//    wire [2:0] zuoyi;
+//    assign zuoyi = inst_lsa ? (inst[7:6] + 1'b1) :  3'b0;
+    
+//   wire [31:0] aaa;
+    
+//    assign aaa = inst[7:6] == 2'b11 ?  ({rf_rdata1[27:0],4'b0}):
+//                  inst[7:6] == 2'b00 ?  ({rf_rdata1[30:0],1'b0}):
+//                  inst[7:6] == 2'b01 ?  ({rf_rdata1[29:0],2'b0}):
+//                  inst[7:6] == 2'b10 ?  ({rf_rdata1[28:0],3'b0}):
+//                  32'b0;
+//    assign rf_rdata1 = inst_lsa ? aaa : rf_rdata1;
   
 //    assign {
 //        lo_hi_r,                        //readĞÅºÅ

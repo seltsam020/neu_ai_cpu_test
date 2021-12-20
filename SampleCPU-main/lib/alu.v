@@ -34,6 +34,7 @@ module alu(
     wire [31:0] srl_result;
     wire [31:0] sra_result;
     wire [31:0] lui_result;
+    
 
     assign and_result = alu_src1 & alu_src2;
     assign or_result = alu_src1 | alu_src2;

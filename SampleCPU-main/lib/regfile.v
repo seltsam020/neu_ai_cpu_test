@@ -27,8 +27,9 @@ module regfile(
      input wire r_hi_we,
      input wire r_lo_we,
      output wire[31:0] hi_o,
-     output wire[31:0] lo_o
-    
+     output wire[31:0] lo_o,
+    input [31:0] inst,
+    input inst_lsa
 );
 
     reg [31:0] reg_array [31:0];
@@ -63,6 +64,7 @@ module regfile(
     wire [31:0] mem_rf_wdata;
     wire mem_rf_we;
     wire [4:0] mem_rf_waddr;
+    wire [31:0] bbb;
     assign {
         mem_rf_we,      // 37
         mem_rf_waddr,   // 36:32
@@ -111,12 +113,24 @@ module regfile(
         lo_wb
     } = wb_to_id_2;
     
+    
+    
     // read out 1
-    assign rdata1 = (raddr1 == 5'b0) ? 32'b0 : 
+    assign bbb = (raddr1 == 5'b0) ? 32'b0 : 
     ((raddr1 == ex_rf_waddr)&& ex_rf_we) ? ex_result : 
     ((raddr1 == mem_rf_waddr)&& mem_rf_we) ? mem_rf_wdata : 
     ((raddr1 == wb1_rf_waddr)&& wb1_rf_we) ? wb1_rf_wdata :
     reg_array[raddr1];
+    
+    
+ wire [31:0] aaa;
+    
+    assign aaa = inst[7:6] == 2'b11 ?  ({bbb[27:0],4'b0}):
+                  inst[7:6] == 2'b00 ?  ({bbb[30:0],1'b0}):
+                  inst[7:6] == 2'b01 ?  ({bbb[29:0],2'b0}):
+                  inst[7:6] == 2'b10 ?  ({bbb[28:0],3'b0}):
+                  32'b0;
+    assign rdata1 = inst_lsa ? aaa : bbb;
     
 
     // read out2
